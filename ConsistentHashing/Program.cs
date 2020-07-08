@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ConsistentHashing
 {
@@ -28,7 +27,7 @@ namespace ConsistentHashing
         {
             // 1. Init ConsistentHashingRing and generate virtual nodes on the ring.
             Console.WriteLine($"Generate server nodes start...");
-            var consistentHashRing = new ConsistentHashRing.ConsistentHashing(ServerNodes, 300);
+            var consistentHashRing = new ConsistentHashing(ServerNodes, 300);
             consistentHashRing.InitServerNodesOnRing();
             Console.WriteLine($"Generate server nodes complete...");
 

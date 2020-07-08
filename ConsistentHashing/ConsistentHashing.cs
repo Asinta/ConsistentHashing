@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ConsistentHashing.ConsistentHashRing
+namespace ConsistentHashing
 {
     public class ConsistentHashing
     {
