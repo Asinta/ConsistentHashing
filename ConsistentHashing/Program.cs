@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using ConsistentHashing.ConsistentHashingRing;
+using System.Linq;
 
 namespace ConsistentHashing
 {
     class Program
     {
+        private const int TestDataCount = 1_000_000;
+
         private static readonly List<string> ServerNodes = new List<string>
         {
             "10.189.0.2",
@@ -20,50 +21,34 @@ namespace ConsistentHashing
             "10.189.0.10",
             "10.189.0.11"
         };
+
+        private static readonly IEnumerable<string> TestData = GenerateTestData(TestDataCount);
         
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            // 1. Init ConsistentHashingRing and generate virtual nodes on the ring.
+            Console.WriteLine($"Generate server nodes start...");
+            var consistentHashRing = new ConsistentHashRing.ConsistentHashing(ServerNodes, 300);
+            consistentHashRing.InitServerNodesOnRing();
+            Console.WriteLine($"Generate server nodes complete...");
 
-            var consistentHashingRing = new ConsistentHashingRing<string>(20, true);
-            foreach (var serverNode in ServerNodes)
-            {
-                consistentHashingRing.AddServer(serverNode);
-            }
+            // 2. Add Caches and count how many caches on each server node.
+            Console.WriteLine($"Generate cache key start...");
+            consistentHashRing.GenerateCachesSummary(TestData);
+            Console.WriteLine($"Generate cache key complete...");
 
-            var testData = GenerateTestKeyvalueData(100000);
-            foreach (var (key, value) in testData)
-            {
-                consistentHashingRing.AddObject(key, value);
-                Console.WriteLine($"Index: {key}");
-            }
-
-            var cacheMapping = GenerateCacheMapping(consistentHashingRing, ServerNodes);
-            foreach (var (key, value) in cacheMapping)
-            {
-                Console.WriteLine($"{value} caches goes to server {key}");
-            }
-            
-            
+            // 3. Calculate standard deviation and print result.
+            consistentHashRing.CalculateStandardDeviation();
+            consistentHashRing.PrintCacheSummary();
         }
 
-        private static Dictionary<string, int> GenerateCacheMapping(ConsistentHashingRing<string> consistentHashingRing, List<string> serverNodes)
+        private static IEnumerable<string> GenerateTestData(int quantity)
         {
-            var mapping = new Dictionary<string, int>();
-            foreach (var serverNode in serverNodes)
+            var data = new List<string>();
+            for (var i = 0; i < quantity; i++)
             {
-                mapping[serverNode] = consistentHashingRing.GetCountForKey(serverNode);
-            }
-
-            return mapping;
-        }
-
-        static SortedDictionary<string, string> GenerateTestKeyvalueData(ulong quantity)
-        {
-            var data = new SortedDictionary<string, string>();
-            for (ulong i = 0; i < quantity; i++)
-            {
-                data[i.ToString()] = (i + 0.1f).ToString(CultureInfo.CurrentCulture);
+                data.Add(i + "#test");
+                Console.WriteLine($"Generate test data: {i}#test");
             }
 
             return data;
