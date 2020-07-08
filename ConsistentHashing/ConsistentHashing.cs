@@ -29,15 +29,20 @@ namespace ConsistentHashing
         {
             foreach (var server in _serversList)
             {
-                var virtualNodesHash = ConsistentHashingUtil.ComputeVirtualNodesHash(server, _virtualNodesCount);
-                foreach (var virtualHash in virtualNodesHash)
+                AddServer(server);
+            }
+        }
+
+        public void AddServer(string server)
+        {
+            var virtualNodesHash = ConsistentHashingUtil.ComputeVirtualNodesHash(server, _virtualNodesCount);
+            foreach (var virtualHash in virtualNodesHash)
+            {
+                if (_hashRing.ContainsKey(virtualHash))
                 {
-                    if (_hashRing.ContainsKey(virtualHash))
-                    {
-                        Console.WriteLine($"Oooops, already has a key {virtualHash}");
-                    }
-                    _hashRing.Add(virtualHash, server);
+                    Console.WriteLine($"Oooops, already has a key {virtualHash}");
                 }
+                _hashRing.Add(virtualHash, server);
             }
         }
 

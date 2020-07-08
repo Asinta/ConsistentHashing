@@ -27,7 +27,7 @@ namespace ConsistentHashing
         {
             // 1. Init ConsistentHashingRing and generate virtual nodes on the ring.
             Console.WriteLine($"Generate server nodes start...");
-            var consistentHashRing = new ConsistentHashing(ServerNodes, 300);
+            var consistentHashRing = new ConsistentHashing(ServerNodes, 200);
             consistentHashRing.InitServerNodesOnRing();
             Console.WriteLine($"Generate server nodes complete...");
 
@@ -39,6 +39,12 @@ namespace ConsistentHashing
             // 3. Calculate standard deviation and print result.
             consistentHashRing.CalculateStandardDeviation();
             consistentHashRing.PrintCacheSummary();
+            
+            // 4. Add server
+            consistentHashRing.AddServer("10.189.0.12");
+            consistentHashRing.GenerateCachesSummary(TestData);
+            consistentHashRing.CalculateStandardDeviation();
+            consistentHashRing.PrintCacheSummary();
         }
 
         private static IEnumerable<string> GenerateTestData(int quantity)
@@ -46,8 +52,10 @@ namespace ConsistentHashing
             var data = new List<string>();
             for (var i = 0; i < quantity; i++)
             {
-                data.Add(i + "#test");
-                Console.WriteLine($"Generate test data: {i}#test");
+                var random = new Random();
+                var key = random.Next(0, int.MaxValue) + "#test";
+                data.Add(key);
+                Console.WriteLine($"Generate test data: {key}");
             }
 
             return data;
